@@ -98,7 +98,12 @@ pub fn window_paddings(window: &Window) -> Edges<Pixels> {
 /// This is [`window_paddings`] plus the frame's own border, which the window
 /// wrapper draws on every side it is not tiled against. Allows to lay an element
 /// flush against the inside of the window frame.
-pub(crate) fn window_content_insets(window: &Window) -> Edges<Pixels> {
+pub(crate) fn window_content_insets(window: &Window, cx: &App) -> Edges<Pixels> {
+    if crate::root::WindowState::try_read(window, cx)
+        .is_some_and(|state| !state.window_border_enabled)
+    {
+        return Edges::all(px(0.));
+    }
     let shadow_size = window.client_inset().unwrap_or(SHADOW_SIZE);
     match window.window_decorations() {
         Decorations::Server => Edges::all(px(0.0)),

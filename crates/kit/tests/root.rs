@@ -48,6 +48,27 @@ fn a_root_renders_the_layers_a_plain_view_leaves_out(cx: &mut TestAppContext) {
 }
 
 #[gpui_kit::test]
+fn custom_window_frames_keep_the_component_overlays(cx: &mut TestAppContext) {
+    cx.update(gpui_kit::init);
+    let (handle, _) = common::open_window(cx, Some(size(px(800.), px(600.))), |_, cx| {
+        cx.new(|_| PlainView)
+    });
+    cx.update_window(handle.into(), |_, window, cx| {
+        window.set_window_border_enabled(false, cx);
+        window.render_frame(cx);
+        assert_eq!(window.client_inset(), Some(px(0.)));
+        open_and_notify(window, cx);
+    })
+    .unwrap();
+    cx.update_window(handle.into(), |_, window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("dialog").visible());
+        assert!(window.find("notification").visible());
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn open_window_wraps_the_view_in_a_root_and_returns_the_view(cx: &mut TestAppContext) {
     cx.update(gpui_kit::init);
     let (handle, view) = cx

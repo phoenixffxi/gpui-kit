@@ -135,7 +135,7 @@ impl RenderOnce for Sheet {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
         let placement = self.placement;
         let selection_scope = self.selection_scope;
-        let frame_insets = crate::window_border::window_content_insets(window);
+        let frame_insets = crate::window_border::window_content_insets(window, cx);
         let size = window.viewport_size()
             - gpui::size(
                 frame_insets.left + frame_insets.right,

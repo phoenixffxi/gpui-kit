@@ -11,6 +11,10 @@ use std::rc::Rc;
 
 /// Extension trait for [`Window`] to add dialog, sheet .. functionality.
 pub trait WindowExt: Sized {
+    /// Enable the component library's client-side border, shadow and resize handles.
+    /// Disable this when the application supplies its own window frame.
+    fn set_window_border_enabled(&mut self, enabled: bool, cx: &mut App);
+
     /// Opens a Sheet at right placement.
     ///
     /// The builder follows the same rendering contract as
@@ -139,6 +143,18 @@ pub trait WindowExt: Sized {
 }
 
 impl WindowExt for Window {
+    fn set_window_border_enabled(&mut self, enabled: bool, cx: &mut App) {
+        WindowState::update(self, cx, |state, window, cx| {
+            if state.window_border_enabled != enabled {
+                state.window_border_enabled = enabled;
+                if !enabled {
+                    window.set_client_inset(gpui::px(0.));
+                }
+                cx.notify();
+            }
+        });
+    }
+
     #[inline]
     fn open_sheet<F>(&mut self, cx: &mut App, build: F)
     where

@@ -32,6 +32,7 @@ pub(crate) struct WindowState {
     touch_selection_overlay: Entity<WindowTouchSelectionOverlay>,
     sheet_size: Option<DefiniteLength>,
     pending_focus_restore: Option<WeakFocusHandle>,
+    pub(crate) window_border_enabled: bool,
 }
 
 #[derive(Clone)]
@@ -82,6 +83,7 @@ impl WindowState {
             touch_selection_overlay: cx.new(|cx| WindowTouchSelectionOverlay::new(window, cx)),
             sheet_size: None,
             pending_focus_restore: None,
+            window_border_enabled: true,
         }
     }
 
@@ -455,10 +457,15 @@ impl gpui_base::RootPlugin for WindowState {
         &self,
         surface: gpui::AnyElement,
         _root: &gpui_base::Root,
-        _window: &mut Window,
+        window: &mut Window,
         _cx: &mut App,
     ) -> impl IntoElement {
-        window_border().child(surface)
+        if self.window_border_enabled {
+            window_border().child(surface).into_any_element()
+        } else {
+            window.set_client_inset(gpui::px(0.));
+            surface
+        }
     }
 }
 
